@@ -250,11 +250,15 @@ function renderPostDetail() {
   time.dateTime = post.createdAt;
   time.textContent = formatDate(post.createdAt);
 
+  const title = document.createElement('h1');
+  title.className = 'post-title';
+  title.textContent = post.title;
+
   const body = document.createElement('div');
   body.className = 'post-body';
   body.innerHTML = renderMarkdown(post.body || '');
 
-  article.append(backLink, time, body, renderArticleNav({
+  article.append(backLink, time, title, body, renderArticleNav({
     previous: state.posts[postIndex + 1],
     next: state.posts[postIndex - 1]
   }));

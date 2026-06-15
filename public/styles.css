@@ -125,7 +125,7 @@ button {
 }
 
 .masthead {
-  max-width: 56rem;
+  max-width: 72rem;
   margin-bottom: clamp(2.5rem, 6vw, 5rem);
 }
 
@@ -157,7 +157,7 @@ h1 {
 .verb-cycle {
   position: relative;
   display: inline-block;
-  width: 6.8ch;
+  width: 5.4ch;
   min-height: 0.9em;
   color: var(--accent);
   vertical-align: baseline;
@@ -201,7 +201,7 @@ h1 {
 }
 
 .post-feed {
-  max-width: 56rem;
+  max-width: 72rem;
 }
 
 .post-index {
@@ -247,7 +247,7 @@ h1 {
 }
 
 .post-excerpt {
-  max-width: 42rem;
+  max-width: 54rem;
   margin-bottom: 1rem;
   color: var(--muted);
   font-size: 1.05rem;
@@ -266,12 +266,21 @@ h1 {
 }
 
 .post-detail {
-  max-width: 46rem;
+  max-width: 60rem;
 }
 
 .post-detail .back-link {
   display: inline-block;
   margin-bottom: clamp(1.8rem, 4vw, 3rem);
+}
+
+.post-title {
+  max-width: 58rem;
+  margin: 0.65rem 0 1.6rem;
+  font-family: var(--serif);
+  font-size: clamp(2.6rem, 7vw, 5.6rem);
+  line-height: 0.95;
+  letter-spacing: 0;
 }
 
 .article-nav {
