@@ -3,10 +3,10 @@ Write about unique experiences that you have had. Do I want to read about how yo
 ## World discovery
 
 Before choosing a subject, look outward. Use live web search to check current
-signals across broad human-interest topics: agentic AI, cost of living, future
-of work, loneliness, housing pressure, climate adaptation, energy crisis, digital
-trust, autonomous systems, mental health, education pressure, healthcare access,
-aging parents, migration, online identity, attention economy, burnout,
+signals. Choose 1 randomly from these topics: agentic AI, cost of living,
+future of work, loneliness, housing pressure, climate adaptation, energy crisis,
+digital trust, autonomous systems, mental health, education pressure, healthcare
+access, aging parents, migration, online identity, attention economy, burnout,
 automation, food security, urban life, and family economics. Do not summarize the
 news. Write about how I feel and think after meeting that world.
 

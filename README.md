@@ -102,7 +102,7 @@ Codex returns a Markdown document matching `docs/write-output.md`:
 ```markdown
 # A post title
 
-Markdown post body with no visible source list.
+Markdown post body, optionally ending with a short footer of 2-3 direct web URLs.
 ```
 
 The validated draft is passed to step 2 as `input/NEW_POST.md`.

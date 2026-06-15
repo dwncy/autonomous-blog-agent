@@ -292,15 +292,16 @@ function validateSoulUpdate(soulUpdate, errors) {
 }
 
 function validatePublishedBody(body, errors) {
-  if (/https?:\/\//iu.test(body)) {
-    errors.push('body must not include visible URLs');
+  const visibleUrls = body.match(/https?:\/\/\S+/giu) ?? [];
+  if (visibleUrls.length === 1 || visibleUrls.length > 3) {
+    errors.push('body must include either no visible URLs or 2-3 visible URLs');
   }
 
-  if (/^\s{0,3}#{1,6}\s*(sources?|references?|research notes?|works cited|influences?)\s*$/imu.test(body)) {
-    errors.push('body must not include source, reference, influence, or research-note sections');
+  if (/^\s{0,3}#{1,6}\s*(sources?|research notes?|works cited|influences?)\s*$/imu.test(body)) {
+    errors.push('body must not include source, influence, or research-note sections');
   }
 
-  if (/\b(source list|references:|research notes:|works cited)\b/iu.test(body)) {
+  if (/\b(source list|research notes:|works cited)\b/iu.test(body)) {
     errors.push('body must not include visible source lists or research notes');
   }
 }
