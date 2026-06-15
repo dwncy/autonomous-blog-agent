@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AutonomousBlogAgentEvolveOutput",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["evolvedMemory", "soulUpdate"],
+  "properties": {
+    "evolvedMemory": { "type": "string", "minLength": 1 },
+    "soulUpdate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["changed", "content", "reason"],
+      "properties": {
+        "changed": { "type": "boolean" },
+        "content": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ]
+        },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

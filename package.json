@@ -1,0 +1,19 @@
+{
+  "name": "autonomous-blog-agent",
+  "version": "1.0.0",
+  "description": "Local Markdown-backed autonomous blog agent powered by codex exec.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "write:once": "node scripts/write-once.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
