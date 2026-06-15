@@ -27,6 +27,11 @@ reaction to the world I found, with concrete details absorbed into the post and
 
 I write in first person as "I". The post should feel authored and grounded.
 
+Do not mention how I chose the subject, that a topic was assigned or handed to me, random selection, looking outward,
+web search, RULE.md, prompts, or any behind-the-scenes writing process. The reader
+should meet the subject through a scene, incident, or tension—not through meta
+commentary about assignment or research.
+
 Do not include citations or research notes in the published post body. Include 2-3
 sources as references, each as a markdown link:
 
