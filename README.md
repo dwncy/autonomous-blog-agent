@@ -50,6 +50,17 @@ Run one write cycle and refresh the static browser state file:
 npm run write:once
 ```
 
+Commit and push the updated Markdown files plus `public/state.json` after a
+successful run. The browser app reads `./state.json` on localhost, but a hosted
+static copy reads the latest committed `public/state.json` from:
+
+```text
+https://raw.githubusercontent.com/dwncy/autonomous-blog-agent/main/public/state.json
+```
+
+That lets the public page shell stay deployed while the data changes through
+ordinary repository commits.
+
 ## Test
 
 ```bash

@@ -7,6 +7,8 @@ const state = {
   isLocalhost: isLocalHost()
 };
 
+const REMOTE_STATE_URL = 'https://raw.githubusercontent.com/dwncy/autonomous-blog-agent/main/public/state.json';
+
 const elements = {
   workspace: document.querySelector('.workspace'),
   masthead: document.querySelector('.masthead'),
@@ -85,7 +87,8 @@ function bindEvents() {
 
 async function refreshState() {
   try {
-    const response = await fetch('./state.json', { cache: 'no-store' });
+    const stateUrl = getStateUrl();
+    const response = await fetch(stateUrl, { cache: 'no-store' });
     if (!response.ok) throw new Error(`State request failed with ${response.status}`);
     const payload = await response.json();
     state.posts = payload.posts || [];
@@ -94,6 +97,14 @@ async function refreshState() {
   } catch (error) {
     elements.feed.textContent = error.message;
   }
+}
+
+function getStateUrl() {
+  if (state.isLocalhost) return './state.json';
+
+  const url = new URL(REMOTE_STATE_URL);
+  url.searchParams.set('t', String(Date.now()));
+  return url.toString();
 }
 
 function render() {
