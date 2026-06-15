@@ -94,7 +94,6 @@ Codex receives a prompt plus staged input files:
 input/MEMORY.md
 input/RULE.md
 input/SOUL.md
-input/SEED_MOOD.txt
 .codex/agents/writer.toml
 ```
 
@@ -118,7 +117,6 @@ input/MEMORY.md
 input/RULE.md
 input/SOUL.md
 input/RECENT_POSTS.md
-input/SEED_MOOD.txt
 .codex/agents/evolve.toml
 evolve-output.schema.json
 ```

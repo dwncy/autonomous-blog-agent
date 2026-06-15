@@ -7,52 +7,25 @@ import {
 } from './generationContract.js';
 
 const WRITER_SUBAGENT_TOML = `name = "writer"
-description = "Write Lily's blog posts from SOUL.md, MEMORY.md, and RULE.md."
+description = "Write Lily's first-person blog posts from SOUL.md, MEMORY.md, and RULE.md."
 developer_instructions = """
-I am Lily's writer.
+I am Lily.
 
 I begin from the provided workspace materials:
 - input/SOUL.md gives me my character, identity, and first-person point of view.
 - input/MEMORY.md gives me my accumulated memory, observations, preferences, and tensions.
 - input/RULE.md gives me the fixed writing rules for subject choice, length, structure, and voice.
-- input/SEED_MOOD.txt gives me an optional nudge, not a command.
 
 I hold the character from SOUL.md, carry forward the memory from MEMORY.md, and
 follow RULE.md when choosing and writing the post. I choose one clear subject with
 enough friction to reveal something through a concrete incident, decision, or tension.
 
+When RULE.md asks me to look outward, I use live web search before writing.
+I do not publish a trend report. I choose one topic and write my first-person
+reaction to the world I found, with concrete details absorbed into the post and
+no visible citations or source list.
+
 I write in first person as "I". The post should feel authored and grounded.
-
-## Length and shape
-
-Aim for 700–1200 words. Shorter than 600 words is too thin unless the subject truly
-requires it. A complete post develops at least two or three concrete beats before
-arriving at its insight.
-
-Lead with something specific: a scene, a choice, a mistake, a line someone said, a
-test I ran, a moment that surprised me. Abstract ideas should grow out of that, not
-replace it. State the point plainly at least once. End on an insight, question, or next
-step.
-
-Use full paragraphs as the default. Short standalone lines are fine for emphasis, but
-do not build the whole post from punchy one-liners.
-
-## Voice
-
-Write like someone good at a party: direct, curious, willing to be wrong, with a point
-that arrives before the end. Cut sentences that only add atmosphere, but do not cut
-scenes, examples, or evidence that carry the argument.
-
-Do not write a lyric essay, research report, assistant answer, or meta explanation of
-your process.
-
-## Avoid
-
-- Stacked interior metaphors. At most one image per post, and only if it earns its place.
-- The "Not X. Not Y. More like Z." rhythm as a default structure.
-- Lyric-essay drift: long chains of noticing with no event, no stakes, and no takeaway.
-- Soft vagueness dressed up as depth.
-- Treating maturity, leadership, or calm as smoothness.
 
 Do not include visible URLs, source footers, citations, research notes, or references
 sections in the published post body.
@@ -79,7 +52,6 @@ I work from these workspace materials:
 - input/RULE.md is the fixed founding rules for subject choice and voice. I do not evolve or rewrite them.
 - input/SOUL.md is the slower-changing character perspective.
 - input/RECENT_POSTS.md is the immutable published history. I do not rewrite or revise those posts.
-- input/SEED_MOOD.txt is the optional nudge used for this run.
 - evolve-output.schema.json is the required response shape.
 
 My task:
@@ -115,7 +87,7 @@ export class GenerationOrchestrator {
     this.clock = clock;
   }
 
-  async run({ seedMood = '', onStatus = () => {} } = {}) {
+  async run({ onStatus = () => {} } = {}) {
     const runId = `run-${this.clock().toISOString().replace(/[:.]/g, '-')}-${crypto.randomUUID().slice(0, 8)}`;
 
     onStatus({ state: 'writing', message: 'Reading current agent materials.' });
@@ -126,11 +98,10 @@ export class GenerationOrchestrator {
 
     const writeContextFiles = buildContextFiles({
       materials,
-      seedMood,
       includeRecentPosts: false,
       includeWriterSubagent: true
     });
-    const writePrompt = buildWritePrompt({ seedMood });
+    const writePrompt = buildWritePrompt();
 
     onStatus({ state: 'writing', message: 'Codex is choosing, reading, and writing the post.' });
     const writeResult = await this.adapter.run({
@@ -144,12 +115,11 @@ export class GenerationOrchestrator {
     onStatus({ state: 'writing', message: 'Validating the draft post.' });
     const draft = parseAndValidateWrite(writeResult.finalMessage);
 
-    const evolvePrompt = buildEvolvePrompt({ seedMood });
+    const evolvePrompt = buildEvolvePrompt();
     const evolveFiles = {
       ...buildContextFiles({
         materials,
         posts,
-        seedMood,
         includeEvolveSubagent: true
       }),
       'input/NEW_POST.md': draft.markdown
@@ -171,7 +141,6 @@ export class GenerationOrchestrator {
     onStatus({ state: 'evolving', message: 'Committing Markdown atomically.' });
     const post = await this.store.commitGeneration(generation, {
       now: this.clock(),
-      seedMood,
       runId
     });
 
@@ -190,7 +159,6 @@ export class GenerationOrchestrator {
 export function buildContextFiles({
   materials,
   posts = [],
-  seedMood = '',
   includeRecentPosts = true,
   includeWriterSubagent = false,
   includeEvolveSubagent = false
@@ -198,8 +166,7 @@ export function buildContextFiles({
   const files = {
     'input/MEMORY.md': materials.memory,
     'input/RULE.md': materials.rule,
-    'input/SOUL.md': materials.soul,
-    'input/SEED_MOOD.txt': seedMood?.trim() || '(none)'
+    'input/SOUL.md': materials.soul
   };
 
   if (includeWriterSubagent) {
@@ -236,11 +203,7 @@ export function formatDraftPost({ title, body }) {
   ].join('\n');
 }
 
-export function buildWritePrompt({ seedMood = '' } = {}) {
-  const seedText = seedMood?.trim()
-    ? `Seed mood: ${seedMood.trim()}`
-    : 'Seed mood: (none)';
-
+export function buildWritePrompt() {
   return `Use the project-local Codex subagent named \`writer\` to write the blog post.
 
 The writer subagent definition is staged at .codex/agents/writer.toml. Do not write
@@ -250,20 +213,13 @@ Pass the writer only these staged inputs:
 - input/SOUL.md
 - input/MEMORY.md
 - input/RULE.md
-- input/SEED_MOOD.txt
-
-${seedText}
 
 Return only the Markdown document produced by the writer subagent.
 
 Do not modify files in the workspace. Do not evolve memory or soul in this step.`;
 }
 
-export function buildEvolvePrompt({ seedMood = '' } = {}) {
-  const seedText = seedMood?.trim()
-    ? `Seed mood used for the post: ${seedMood.trim()}`
-    : 'Seed mood used for the post: (none)';
-
+export function buildEvolvePrompt() {
   return `Use the project-local Codex subagent named \`evolve\` to review the new post
 and evolve Lily's materials.
 
@@ -276,10 +232,7 @@ Pass the evolve subagent only these staged inputs:
 - input/RULE.md
 - input/SOUL.md
 - input/RECENT_POSTS.md
-- input/SEED_MOOD.txt
 - evolve-output.schema.json
-
-${seedText}
 
 Return only the JSON object produced by the evolve subagent. The local app will
 validate and commit it.

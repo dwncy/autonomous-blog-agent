@@ -21,7 +21,7 @@ export function quoteFrontmatterValue(value) {
   return JSON.stringify(String(value ?? ''));
 }
 
-export function stringifyPost({ id, title, createdAt, slug, seedMood, body }) {
+export function stringifyPost({ id, title, createdAt, slug, body }) {
   const lines = [
     '---',
     `id: ${quoteFrontmatterValue(id)}`,
@@ -29,10 +29,6 @@ export function stringifyPost({ id, title, createdAt, slug, seedMood, body }) {
     `createdAt: ${quoteFrontmatterValue(createdAt)}`,
     `slug: ${quoteFrontmatterValue(slug)}`
   ];
-
-  if (seedMood) {
-    lines.push(`seedMood: ${quoteFrontmatterValue(seedMood)}`);
-  }
 
   lines.push('---', '', normalizeMarkdown(body));
   return `${lines.join('\n').replace(/\n+$/u, '')}\n`;

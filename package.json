@@ -7,8 +7,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "write:once": "node scripts/write-once.js",
-    "test": "node --test"
+    "write:once": "node scripts/write-once.js"
   },
   "dependencies": {
     "express": "^5.2.1"

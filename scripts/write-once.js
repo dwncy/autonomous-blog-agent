@@ -12,7 +12,6 @@ try {
   const result = await runAutonomousWrite({
     projectRoot,
     dataDir,
-    seedMood: '',
     onStatus: (status) => {
       process.stderr.write(`${status.state}: ${status.message}\n`);
     }

@@ -57,7 +57,6 @@ export class MarkdownDataStore {
         title: metadata.title || 'Untitled',
         createdAt,
         slug: metadata.slug || slugify(metadata.title || id),
-        seedMood: metadata.seedMood || null,
         body,
         excerpt: excerpt(body),
         path: path.relative(this.dataDir, filePath)
@@ -73,7 +72,7 @@ export class MarkdownDataStore {
     return posts;
   }
 
-  async commitGeneration(rawGeneration, { now = new Date(), seedMood = '', runId = makePostId({ title: 'run', date: now }) } = {}) {
+  async commitGeneration(rawGeneration, { now = new Date(), runId = makePostId({ title: 'run', date: now }) } = {}) {
     await this.ensure();
     const generation = validateGeneration(rawGeneration);
     const createdAt = now.toISOString();
@@ -92,7 +91,6 @@ export class MarkdownDataStore {
       title: generation.title,
       createdAt,
       slug,
-      seedMood: seedMood?.trim(),
       body: generation.body
     });
 

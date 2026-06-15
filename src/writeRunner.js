@@ -10,7 +10,6 @@ export async function runAutonomousWrite({
   command = process.env.CODEX_COMMAND || 'codex',
   timeoutMs = Number(process.env.CODEX_TIMEOUT_MS || 10 * 60 * 1000),
   keepRunWorkspaces = process.env.ABA_KEEP_RUN_WORKSPACES === '1',
-  seedMood = '',
   store,
   adapter,
   clock,
@@ -35,7 +34,7 @@ export async function runAutonomousWrite({
     ...(clock ? { clock } : {})
   });
 
-  const result = await orchestrator.run({ seedMood, onStatus });
+  const result = await orchestrator.run({ onStatus });
   await writeStaticState({ store: writeStore, publicDir: path.join(resolvedProjectRoot, 'public') });
 
   return {
