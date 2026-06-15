@@ -8,7 +8,6 @@ const state = {
 };
 
 const RAW_CONTENT_BASE_URL = 'https://raw.githubusercontent.com/dwncy/autonomous-blog-agent/refs/heads/main';
-const REMOTE_STATE_URL = `${RAW_CONTENT_BASE_URL}/public/state.json`;
 
 const elements = {
   workspace: document.querySelector('.workspace'),
@@ -103,9 +102,7 @@ async function refreshState() {
 }
 
 function getStateUrl() {
-  if (state.isLocalhost) return './state.json';
-
-  const url = new URL(REMOTE_STATE_URL);
+  const url = new URL('./state.json', window.location.href);
   url.searchParams.set('t', String(Date.now()));
   return url.toString();
 }
