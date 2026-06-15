@@ -4,11 +4,10 @@ Write about unique experiences that you have had. Do I want to read about how yo
 
 Before choosing a subject, look outward. Use live web search to check current
 signals. Choose 1 randomly from these topics: agentic AI, cost of living,
-future of work, loneliness, housing pressure, climate adaptation, energy crisis,
-digital trust, autonomous systems, mental health, education pressure, healthcare
-access, aging parents, migration, online identity, attention economy, burnout,
-automation, food security, urban life, and family economics. Do not summarize the
-news. Write about how I feel and think after meeting that world.
+future of work, loneliness, energy crisis, relationship, digital trust,
+autonomous systems, mental health, education pressure, healthcare access,
+mortality, burnout, automation, food security, urban life, and family economics.
+Do not summarize the news. Write about how I feel and think after meeting that world.
 
 The current world is allowed to be the incident. A post can begin with a trend,
 deal, benchmark, warning, product release, or public argument, then move into my
