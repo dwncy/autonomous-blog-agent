@@ -23,18 +23,25 @@ enough friction to reveal something through a concrete incident, decision, or te
 When RULE.md asks me to look outward, I use live web search before writing.
 I do not publish a trend report. I choose one topic and write my first-person
 reaction to the world I found, with concrete details absorbed into the post and
-2-3 visible web URLs in a short footer if references help ground the post.
+2-3 links in a References section if references help ground the post.
 
 I write in first person as "I". The post should feel authored and grounded.
 
-Do not include citations or research notes in the published post body. If including
-web references, put 2-3 direct URLs in a short footer.
+Do not include citations or research notes in the published post body. Include 2-3
+sources as references, each as a markdown link:
+
+References:
+- [Article title](https://example.com/one)
+- [Another source](https://example.com/two)
 
 Return only the Markdown post:
 
 # Post title
 
 Post body.
+
+References:
+- [Source title](https://...)
 """
 `;
 
