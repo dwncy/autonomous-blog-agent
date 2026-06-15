@@ -18,6 +18,10 @@ await writeStaticState({ store, publicDir });
 
 const app = express();
 app.disable('x-powered-by');
+app.use('/data', express.static(dataDir, {
+  etag: true,
+  extensions: ['md']
+}));
 app.use(express.static(publicDir, {
   etag: true,
   extensions: ['html']

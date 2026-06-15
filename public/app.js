@@ -7,7 +7,8 @@ const state = {
   isLocalhost: isLocalHost()
 };
 
-const REMOTE_STATE_URL = 'https://raw.githubusercontent.com/dwncy/autonomous-blog-agent/main/public/state.json';
+const RAW_CONTENT_BASE_URL = 'https://raw.githubusercontent.com/dwncy/autonomous-blog-agent/refs/heads/main';
+const REMOTE_STATE_URL = `${RAW_CONTENT_BASE_URL}/public/state.json`;
 
 const elements = {
   workspace: document.querySelector('.workspace'),
@@ -91,8 +92,10 @@ async function refreshState() {
     const response = await fetch(stateUrl, { cache: 'no-store' });
     if (!response.ok) throw new Error(`State request failed with ${response.status}`);
     const payload = await response.json();
-    state.posts = payload.posts || [];
-    state.materials = payload.materials || state.materials;
+    state.posts = await loadPosts(payload.posts || []);
+    if (state.isLocalhost) {
+      state.materials = await loadMaterials();
+    }
     render();
   } catch (error) {
     elements.feed.textContent = error.message;
@@ -105,6 +108,71 @@ function getStateUrl() {
   const url = new URL(REMOTE_STATE_URL);
   url.searchParams.set('t', String(Date.now()));
   return url.toString();
+}
+
+async function loadPosts(postRefs) {
+  const posts = await Promise.all(postRefs.map(loadPost));
+  return posts.filter(Boolean);
+}
+
+async function loadPost(postRef) {
+  if (postRef?.body) return normalizeLegacyPost(postRef);
+
+  const filepath = postRef?.filepath;
+  if (!filepath) return null;
+
+  const response = await fetch(getPostMarkdownUrl(filepath), { cache: 'no-store' });
+  if (!response.ok) throw new Error(`Post request failed for ${filepath} with ${response.status}`);
+
+  const markdown = await response.text();
+  const { metadata, body } = parseFrontmatter(markdown);
+  const id = metadata.id || filepath.replace(/\.md$/u, '');
+  const title = metadata.title || 'Untitled';
+
+  return {
+    id,
+    filepath,
+    title,
+    createdAt: metadata.createdAt || '',
+    slug: metadata.slug || slugify(title),
+    body,
+    excerpt: firstSentence(body)
+  };
+}
+
+function normalizeLegacyPost(post) {
+  return {
+    ...post,
+    filepath: post.filepath || post.filename || post.path?.replace(/^posts\//u, '')
+  };
+}
+
+async function loadMaterials() {
+  const [memory, rule, soul] = await Promise.all([
+    fetchText('/data/MEMORY.md'),
+    fetchText('/data/RULE.md'),
+    fetchText('/data/SOUL.md')
+  ]);
+  return { memory, rule, soul };
+}
+
+async function fetchText(url) {
+  const response = await fetch(url, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`Material request failed with ${response.status}`);
+  return response.text();
+}
+
+function getPostMarkdownUrl(filepath) {
+  const encoded = encodePath(filepath);
+  if (state.isLocalhost) return `/data/posts/${encoded}`;
+  return `${RAW_CONTENT_BASE_URL}/data/posts/${encoded}`;
+}
+
+function encodePath(filepath) {
+  return String(filepath)
+    .split('/')
+    .map((part) => encodeURIComponent(part))
+    .join('/');
 }
 
 function render() {
@@ -277,6 +345,44 @@ function firstSentence(value) {
     .replace(/\s+/g, ' ')
     .trim();
   return text.split(/(?<=[.!?])\s/u)[0] || '';
+}
+
+function parseFrontmatter(markdown) {
+  const source = String(markdown || '').replace(/\r\n/g, '\n');
+  const match = source.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/u);
+  if (!match) return { metadata: {}, body: source };
+
+  const metadata = {};
+  for (const rawLine of match[1].split('\n')) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) continue;
+
+    const separator = line.indexOf(':');
+    if (separator === -1) continue;
+
+    const key = line.slice(0, separator).trim();
+    const rawValue = line.slice(separator + 1).trim();
+    if (!key) continue;
+
+    try {
+      metadata[key] = rawValue.startsWith('"') ? JSON.parse(rawValue) : rawValue;
+    } catch {
+      metadata[key] = rawValue.replace(/^"|"$/g, '');
+    }
+  }
+
+  return { metadata, body: match[2] };
+}
+
+function slugify(input) {
+  const slug = String(input || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 64);
+  return slug || 'post';
 }
 
 function formatDate(value) {

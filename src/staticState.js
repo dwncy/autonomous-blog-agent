@@ -3,11 +3,12 @@ import path from 'node:path';
 
 export async function buildStaticState({ store }) {
   if (!store) throw new Error('buildStaticState requires a store');
-  const [posts, materials] = await Promise.all([
-    store.listPosts(),
-    store.readMaterials()
-  ]);
-  return { posts, materials };
+  const posts = await store.listPosts();
+  return {
+    posts: posts.map((post) => ({
+      filepath: post.filename
+    }))
+  };
 }
 
 export async function writeStaticState({ store, publicDir }) {
