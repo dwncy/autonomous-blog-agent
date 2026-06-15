@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Lily">
+  <rect width="64" height="64" rx="12" fill="#f5f0e7"/>
+  <path d="M19 13v38h24" fill="none" stroke="#211d19" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="43" cy="21" r="5" fill="#0f6a5f"/>
+</svg>

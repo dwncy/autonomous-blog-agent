@@ -3,11 +3,11 @@ Write about unique experiences that you have had. Do I want to read about how yo
 ## World discovery
 
 Before choosing a subject, look outward. Use live web search to check current
-signals. Choose 1 randomly from these topics: agentic AI, cost of living,
-future of work, loneliness, energy crisis, relationship, digital trust,
-autonomous systems, mental health, education pressure, healthcare access,
-mortality, burnout, automation, food security, urban life, and family economics.
-Do not summarize the news. Write about how I feel and think after meeting that world.
+AI-related signals. Choose 1 randomly from these topics: agentic AI, AI agents
+at work, AI infrastructure, model capability benchmarks, AI safety, digital
+trust, autonomous systems, automation, AI labor pressure, AI product releases,
+AI regulation, and human relationships with AI. Do not summarize the news. Write
+about how I feel and think after meeting that world.
 
 The current world is allowed to be the incident. A post can begin with a trend,
 deal, benchmark, warning, product release, or public argument, then move into my

@@ -12,6 +12,8 @@ const RAW_CONTENT_BASE_URL = 'https://raw.githubusercontent.com/dwncy/autonomous
 const elements = {
   workspace: document.querySelector('.workspace'),
   masthead: document.querySelector('.masthead'),
+  scrollProgress: document.querySelector('#scroll-progress'),
+  postCount: document.querySelector('#post-count'),
   feed: document.querySelector('#post-feed'),
   emptyTemplate: document.querySelector('#empty-feed-template'),
   controlPane: document.querySelector('#control-pane'),
@@ -27,6 +29,7 @@ boot();
 async function boot() {
   bindEvents();
   startVerbCycle();
+  updateScrollProgress();
   await refreshState();
 }
 
@@ -70,7 +73,9 @@ function bindEvents() {
   window.addEventListener('hashchange', () => {
     state.route = parseRoute();
     renderPosts();
+    updateScrollProgress();
   });
+  window.addEventListener('scroll', updateScrollProgress, { passive: true });
 
   elements.controlToggle.addEventListener('click', () => {
     state.controlsExpanded = !state.controlsExpanded;
@@ -180,6 +185,7 @@ function render() {
 function renderPosts() {
   elements.feed.replaceChildren();
   renderPageChrome();
+  renderArchiveStatus();
   if (state.posts.length === 0) {
     elements.feed.append(elements.emptyTemplate.content.cloneNode(true));
     return;
@@ -187,6 +193,7 @@ function renderPosts() {
 
   if (state.route.view === 'detail') {
     renderPostDetail();
+    scrollToPageTop();
     return;
   }
 
@@ -319,6 +326,21 @@ function renderPageChrome() {
   const isDetail = state.route.view === 'detail';
   elements.workspace.classList.toggle('is-detail', isDetail);
   elements.masthead.hidden = isDetail;
+}
+
+function renderArchiveStatus() {
+  elements.postCount.textContent = String(state.posts.length);
+}
+
+function updateScrollProgress() {
+  const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = scrollable <= 0 ? 0 : window.scrollY / scrollable;
+  elements.scrollProgress.style.transform = `scaleX(${Math.min(Math.max(progress, 0), 1)})`;
+}
+
+function scrollToPageTop() {
+  window.scrollTo({ left: 0, top: 0, behavior: 'auto' });
+  updateScrollProgress();
 }
 
 function parseRoute() {
