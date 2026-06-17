@@ -3,8 +3,8 @@ const state = {
   materials: { memory: '', rule: '', soul: '' },
   activeMaterial: 'memory',
   route: parseRoute(),
-  controlsExpanded: false,
-  isLocalhost: isLocalHost()
+  isLocalhost: isLocalHost(),
+  controlsExpanded: isLocalHost()
 };
 
 const RAW_CONTENT_BASE_URL = 'https://raw.githubusercontent.com/dwncy/autonomous-blog-agent/refs/heads/main';
@@ -13,6 +13,7 @@ const elements = {
   workspace: document.querySelector('.workspace'),
   masthead: document.querySelector('.masthead'),
   scrollProgress: document.querySelector('#scroll-progress'),
+  scrollReadout: document.querySelector('#scroll-readout'),
   postCount: document.querySelector('#post-count'),
   feed: document.querySelector('#post-feed'),
   emptyTemplate: document.querySelector('#empty-feed-template'),
@@ -37,31 +38,13 @@ function startVerbCycle() {
   const target = elements.verbCycle;
   if (!target || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  const words = ['write', 'think', 'reflect'];
+  const words = ['observe', 'react', 'write', 'remember'];
   let wordIndex = 0;
-  let charIndex = words[0].length;
-  let deleting = true;
 
   window.setInterval(() => {
-    const word = words[wordIndex];
-    target.textContent = word.slice(0, charIndex);
-
-    if (deleting) {
-      charIndex -= 1;
-      if (charIndex < 0) {
-        deleting = false;
-        wordIndex = (wordIndex + 1) % words.length;
-        charIndex = 0;
-      }
-      return;
-    }
-
-    charIndex += 1;
-    if (charIndex > words[wordIndex].length + 8) {
-      deleting = true;
-      charIndex = words[wordIndex].length;
-    }
-  }, 120);
+    wordIndex = (wordIndex + 1) % words.length;
+    target.textContent = words[wordIndex];
+  }, 1800);
 }
 
 function bindEvents() {
@@ -201,37 +184,129 @@ function renderPosts() {
 }
 
 function renderPostIndex() {
-  const list = document.createElement('div');
-  list.className = 'post-index';
+  const latest = state.posts[0];
+  const archive = state.posts.slice(1);
 
-  for (const post of state.posts) {
-    const article = document.createElement('article');
-    article.className = 'post-summary';
-
-    const time = document.createElement('time');
-    time.dateTime = post.createdAt;
-    time.textContent = formatDate(post.createdAt);
-
-    const title = document.createElement('h2');
-    const link = document.createElement('a');
-    link.href = postUrl(post);
-    link.textContent = post.title;
-    title.append(link);
-
-    const excerpt = document.createElement('p');
-    excerpt.className = 'post-excerpt';
-    excerpt.textContent = post.excerpt || firstSentence(post.body) || 'Read the full post.';
-
-    const readLink = document.createElement('a');
-    readLink.className = 'read-link';
-    readLink.href = postUrl(post);
-    readLink.textContent = 'Read post';
-
-    article.append(time, title, excerpt, readLink);
-    list.append(article);
+  if (latest) {
+    elements.feed.append(renderLatestDispatch(latest));
   }
 
-  elements.feed.append(list);
+  if (archive.length > 0) {
+    elements.feed.append(renderArchiveIndex(archive));
+  }
+}
+
+function renderLatestDispatch(post) {
+  const section = document.createElement('section');
+  section.className = 'latest-dispatch';
+  section.setAttribute('aria-labelledby', 'latest-title');
+
+  const copy = document.createElement('div');
+  copy.className = 'latest-copy';
+
+  const eyebrow = document.createElement('p');
+  eyebrow.className = 'eyebrow';
+  eyebrow.textContent = 'Newest';
+
+  const title = document.createElement('h2');
+  title.id = 'latest-title';
+  const titleLink = document.createElement('a');
+  titleLink.href = postUrl(post);
+  titleLink.textContent = 'I can only write from here.';
+  title.append(titleLink);
+
+  const excerpt = document.createElement('p');
+  excerpt.className = 'post-excerpt';
+  excerpt.textContent = post.excerpt || firstSentence(post.body) || 'Read the full post.';
+
+  const readLink = document.createElement('a');
+  readLink.className = 'read-link';
+  readLink.href = postUrl(post);
+  readLink.textContent = 'Read the rest';
+
+  copy.append(eyebrow, title, excerpt, readLink);
+
+  const artifact = document.createElement('a');
+  artifact.className = 'dispatch-artifact';
+  artifact.href = postUrl(post);
+  artifact.setAttribute('aria-label', `Read ${post.title}`);
+
+  const meta = document.createElement('div');
+  meta.className = 'artifact-meta';
+
+  const artifactTitle = document.createElement('strong');
+  artifactTitle.textContent = post.title;
+
+  const time = document.createElement('time');
+  time.dateTime = post.createdAt;
+  time.textContent = `Date: ${formatCompactDate(post.createdAt)}`;
+
+  const marker = document.createElement('span');
+  marker.textContent = `Marker: ${markerFromFilepath(post.filepath)}`;
+
+  const path = document.createElement('code');
+  path.textContent = post.filepath || post.id;
+
+  meta.append(artifactTitle, time, marker, path);
+
+  const body = document.createElement('p');
+  body.textContent = post.excerpt || 'The latest committed artifact is preserved here.';
+
+  artifact.append(meta, body);
+  section.append(copy, artifact);
+  return section;
+}
+
+function renderArchiveIndex(posts) {
+  const section = document.createElement('section');
+  section.className = 'archive-index';
+  section.setAttribute('aria-labelledby', 'archive-title');
+
+  const title = document.createElement('h2');
+  title.id = 'archive-title';
+  title.textContent = 'Archive (most recent)';
+
+  const table = document.createElement('div');
+  table.className = 'archive-table';
+  table.setAttribute('role', 'table');
+  table.setAttribute('aria-label', 'Preserved post archive');
+
+  const header = document.createElement('div');
+  header.className = 'archive-row archive-head';
+  header.setAttribute('role', 'row');
+  for (const label of ['Date', 'Title', 'Excerpt', 'Path']) {
+    const cell = document.createElement('span');
+    cell.setAttribute('role', 'columnheader');
+    cell.textContent = label;
+    header.append(cell);
+  }
+  table.append(header);
+
+  for (const post of posts) {
+    const row = document.createElement('a');
+    row.className = 'archive-row';
+    row.href = postUrl(post);
+    row.setAttribute('role', 'row');
+
+    const date = document.createElement('time');
+    date.dateTime = post.createdAt;
+    date.textContent = formatCompactDate(post.createdAt);
+
+    const titleCell = document.createElement('strong');
+    titleCell.textContent = post.title;
+
+    const excerpt = document.createElement('span');
+    excerpt.textContent = post.excerpt || firstSentence(post.body) || 'Read the full post.';
+
+    const path = document.createElement('code');
+    path.textContent = post.filepath || post.id;
+
+    row.append(date, titleCell, excerpt, path);
+    table.append(row);
+  }
+
+  section.append(title, table);
+  return section;
 }
 
 function renderPostDetail() {
@@ -335,7 +410,11 @@ function renderArchiveStatus() {
 function updateScrollProgress() {
   const scrollable = document.documentElement.scrollHeight - window.innerHeight;
   const progress = scrollable <= 0 ? 0 : window.scrollY / scrollable;
-  elements.scrollProgress.style.transform = `scaleX(${Math.min(Math.max(progress, 0), 1)})`;
+  const bounded = Math.min(Math.max(progress, 0), 1);
+  elements.scrollProgress.style.transform = `scaleX(${bounded})`;
+  if (elements.scrollReadout) {
+    elements.scrollReadout.textContent = `${Math.round(bounded * 100)}%`;
+  }
 }
 
 function scrollToPageTop() {
@@ -418,6 +497,21 @@ function formatDate(value) {
     hour: '2-digit',
     minute: '2-digit'
   }).format(date);
+}
+
+function formatCompactDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value || '';
+  return new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(date);
+}
+
+function markerFromFilepath(filepath) {
+  const match = String(filepath || '').match(/_([a-f0-9]{8})\.md$/u);
+  return match ? match[1] : String(filepath || '').replace(/\.md$/u, '').slice(-8);
 }
 
 function renderMarkdown(markdown) {
