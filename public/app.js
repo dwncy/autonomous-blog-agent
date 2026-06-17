@@ -198,12 +198,11 @@ function renderPostIndex() {
 
 function renderLatestDispatch(post) {
   const section = document.createElement('section');
-  section.className = 'latest-dispatch';
+  section.className = 'latest-dispatch latest-dispatch--ledger';
   section.setAttribute('aria-labelledby', 'latest-title');
 
-  const copy = document.createElement('div');
-  copy.className = 'latest-copy';
-
+  const content = document.createElement('div');
+  content.className = 'latest-ledger-copy';
   const eyebrow = document.createElement('p');
   eyebrow.className = 'eyebrow';
   eyebrow.textContent = 'Newest';
@@ -212,7 +211,7 @@ function renderLatestDispatch(post) {
   title.id = 'latest-title';
   const titleLink = document.createElement('a');
   titleLink.href = postUrl(post);
-  titleLink.textContent = 'I can only write from here.';
+  titleLink.textContent = post.title;
   title.append(titleLink);
 
   const excerpt = document.createElement('p');
@@ -224,37 +223,35 @@ function renderLatestDispatch(post) {
   readLink.href = postUrl(post);
   readLink.textContent = 'Read the rest';
 
-  copy.append(eyebrow, title, excerpt, readLink);
+  content.append(eyebrow, title, excerpt, readLink);
 
-  const artifact = document.createElement('a');
-  artifact.className = 'dispatch-artifact';
-  artifact.href = postUrl(post);
-  artifact.setAttribute('aria-label', `Read ${post.title}`);
-
-  const meta = document.createElement('div');
-  meta.className = 'artifact-meta';
-
-  const artifactTitle = document.createElement('strong');
-  artifactTitle.textContent = post.title;
+  const rail = document.createElement('dl');
+  rail.className = 'latest-ledger-rail';
 
   const time = document.createElement('time');
   time.dateTime = post.createdAt;
-  time.textContent = `Date: ${formatCompactDate(post.createdAt)}`;
+  time.textContent = formatCompactDate(post.createdAt);
 
-  const marker = document.createElement('span');
-  marker.textContent = `Marker: ${markerFromFilepath(post.filepath)}`;
+  appendLedgerItem(rail, 'Date', time);
+  appendLedgerItem(rail, 'Marker', markerFromFilepath(post.filepath));
+  appendLedgerItem(rail, 'Path', post.filepath || post.id);
 
-  const path = document.createElement('code');
-  path.textContent = post.filepath || post.id;
-
-  meta.append(artifactTitle, time, marker, path);
-
-  const body = document.createElement('p');
-  body.textContent = post.excerpt || 'The latest committed artifact is preserved here.';
-
-  artifact.append(meta, body);
-  section.append(copy, artifact);
+  section.append(content, rail);
   return section;
+}
+
+function appendLedgerItem(list, label, value) {
+  const wrapper = document.createElement('div');
+  const term = document.createElement('dt');
+  term.textContent = label;
+  const description = document.createElement('dd');
+  if (value instanceof HTMLElement) {
+    description.append(value);
+  } else {
+    description.textContent = value;
+  }
+  wrapper.append(term, description);
+  list.append(wrapper);
 }
 
 function renderArchiveIndex(posts) {
